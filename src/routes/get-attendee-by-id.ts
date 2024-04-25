@@ -9,7 +9,7 @@ const getAttendeeById = async (app: FastifyInstance) => {
     {
       schema: {
         params: z.object({
-          attendeeId: z.string(),
+          attendeeId: z.string().transform((id) => Number(id)),
         }),
         response: {
           200: z.object({
@@ -17,10 +17,7 @@ const getAttendeeById = async (app: FastifyInstance) => {
               id: z.number().int().positive(),
               name: z.string(),
               email: z.string().email(),
-              createdAt: z.date(),
-              event: z.object({
-                title: z.string(),
-              }),
+              eventTitle: z.string(),
             }),
           }),
           404: z.object({
@@ -35,17 +32,15 @@ const getAttendeeById = async (app: FastifyInstance) => {
     async (req, reply) => {
       try {
         const { attendeeId } = req.params
-        const id = Number(attendeeId)
 
         const attendee = await prisma.attendee.findUnique({
           where: {
-            id,
+            id: attendeeId,
           },
           select: {
             id: true,
             name: true,
             email: true,
-            createdAt: true,
             event: {
               select: {
                 title: true,
@@ -61,7 +56,12 @@ const getAttendeeById = async (app: FastifyInstance) => {
         }
 
         return reply.status(200).send({
-          attendee,
+          attendee: {
+            id: attendee.id,
+            name: attendee.name,
+            email: attendee.email,
+            eventTitle: attendee.event.title,
+          },
         })
       } catch (error) {
         return reply.status(400).send({
