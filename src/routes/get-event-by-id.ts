@@ -3,13 +3,13 @@ import z from 'zod'
 import { prisma } from '../utils/prisma'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-const getEventBySlug = async (app: FastifyInstance) => {
+const getEventById = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().get(
-    '/event/:slug/slug',
+    '/event/:eventId',
     {
       schema: {
         params: z.object({
-          slug: z.string(),
+          eventId: z.string().uuid(),
         }),
         response: {
           201: z.object({
@@ -19,6 +19,7 @@ const getEventBySlug = async (app: FastifyInstance) => {
               details: z.string().nullable(),
               maximumAttendees: z.number().int().positive().nullable(),
               slug: z.string(),
+              attendeesAmount: z.number().int().positive(),
             }),
           }),
           404: z.object({
@@ -32,11 +33,23 @@ const getEventBySlug = async (app: FastifyInstance) => {
     },
     async (req, reply) => {
       try {
-        const { slug } = req.params
+        const { eventId } = req.params
 
         const event = await prisma.event.findUnique({
+          select: {
+            id: true,
+            title: true,
+            details: true,
+            slug: true,
+            maximumAttendees: true,
+            _count: {
+              select: {
+                attendees: true,
+              },
+            },
+          },
           where: {
-            slug,
+            id: eventId,
           },
         })
 
@@ -45,7 +58,14 @@ const getEventBySlug = async (app: FastifyInstance) => {
         }
 
         return reply.status(200).send({
-          event,
+          event: {
+            id: event.id,
+            title: event.title,
+            details: event.details,
+            maximumAttendees: event.maximumAttendees,
+            slug: event.slug,
+            attendeesAmount: event._count.attendees,
+          },
         })
       } catch (error) {
         return reply.status(400).send({ error: error.message })
@@ -54,4 +74,4 @@ const getEventBySlug = async (app: FastifyInstance) => {
   )
 }
 
-export { getEventBySlug }
+export { getEventById }
