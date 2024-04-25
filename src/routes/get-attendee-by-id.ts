@@ -18,6 +18,7 @@ const getAttendeeById = async (app: FastifyInstance) => {
               name: z.string(),
               email: z.string().email(),
               eventTitle: z.string(),
+              checkInURL: z.string().url(),
             }),
           }),
           404: z.object({
@@ -55,12 +56,17 @@ const getAttendeeById = async (app: FastifyInstance) => {
           })
         }
 
+        const baseURL = `${req.protocol}://${req.hostname}`
+
+        const checkInURL = new URL(`/attendee/${attendee.id}/check-in`, baseURL)
+
         return reply.status(200).send({
           attendee: {
             id: attendee.id,
             name: attendee.name,
             email: attendee.email,
             eventTitle: attendee.event.title,
+            checkInURL: checkInURL.toString(),
           },
         })
       } catch (error) {
