@@ -1,6 +1,24 @@
 import fastify from 'fastify'
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
+import { createEvent } from './routes/create-event'
+import { getEventBySlug } from './routes/get-event-by-slug'
+import { registerForEvent } from './routes/register-for-event'
+import { getAttendeeById } from './routes/get-attendee-by-id'
+import { getAllAttendeesByEventId } from './routes/get-all-attendees-by-eventid'
 
 const app = fastify()
+
+app.setValidatorCompiler(validatorCompiler)
+app.setSerializerCompiler(serializerCompiler)
+
+app.register(createEvent)
+app.register(getEventBySlug)
+app.register(registerForEvent)
+app.register(getAttendeeById)
+app.register(getAllAttendeesByEventId)
 
 app.listen({ port: 3333 }, (err, address) => {
   if (err) {
