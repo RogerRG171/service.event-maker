@@ -11,6 +11,10 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
         params: z.object({
           eventId: z.string().uuid(),
         }),
+        querystring: z.object({
+          query: z.string().nullish(),
+          pageIndex: z.coerce.number().default(0),
+        }),
         response: {
           200: z.object({
             attendees: z.array(
@@ -19,11 +23,14 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
                 name: z.string(),
                 email: z.string().email(),
                 createdAt: z.date(),
-                eventId: z.string().uuid(),
+                checkInAt: z.date().nullable(),
               }),
             ),
           }),
           404: z.object({
+            error: z.string(),
+          }),
+          400: z.object({
             error: z.string(),
           }),
         },
@@ -32,28 +39,52 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
     async (req, reply) => {
       try {
         const { eventId } = req.params
+        const { pageIndex, query } = req.query
 
-        const event = await prisma.event.findUnique({
-          where: {
-            id: eventId,
-          },
+        const attendees = await prisma.attendee.findMany({
           select: {
-            details: false,
-            maximumAttendees: false,
-            title: false,
-            slug: false,
-            id: false,
-            attendees: true,
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            checkIn: {
+              select: {
+                createdAt: true,
+              },
+            },
+          },
+          where: query
+            ? {
+                eventId,
+                name: {
+                  contains: query,
+                },
+              }
+            : {
+                eventId,
+              },
+          take: 10,
+          skip: pageIndex * 10,
+          orderBy: {
+            createdAt: 'desc',
           },
         })
 
-        if (!event) {
+        if (!attendees) {
           return reply.status(404).send({
             error: 'O evento não foi encontrado',
           })
         }
 
-        return reply.status(200).send({ attendees: event.attendees })
+        return reply.status(200).send({
+          attendees: attendees.map((attendee) => ({
+            id: attendee.id,
+            name: attendee.name,
+            email: attendee.email,
+            createdAt: attendee.createdAt,
+            checkInAt: attendee.checkIn?.createdAt || null,
+          })),
+        })
       } catch (error) {
         return reply.status(400).send({
           error: 'Ocorreu um erro ao buscar os participantes',
