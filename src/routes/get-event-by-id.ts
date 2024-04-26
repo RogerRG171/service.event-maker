@@ -8,6 +8,10 @@ const getEventById = async (app: FastifyInstance) => {
     '/event/:eventId',
     {
       schema: {
+        summary: 'Retorna um evento pelo seu id',
+        description:
+          'Retorna um evento pelo seu id recebido por parâmetro na url',
+        tags: ['event'],
         params: z.object({
           eventId: z.string().uuid(),
         }),

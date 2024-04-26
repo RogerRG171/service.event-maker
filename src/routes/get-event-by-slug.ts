@@ -8,6 +8,10 @@ const getEventBySlug = async (app: FastifyInstance) => {
     '/event/:slug/slug',
     {
       schema: {
+        summary: 'Retorna um evento pelo seu slug',
+        description:
+          'Retorna um evento pelo seu slug recebido por parâmetro na url',
+        tags: ['event'],
         params: z.object({
           slug: z.string(),
         }),

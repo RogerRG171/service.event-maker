@@ -8,6 +8,12 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
     '/event/:eventId/attendees',
     {
       schema: {
+        summary: 'Busca os participantes de um evento',
+        description:
+          'Busca todos os participantes de um evento pelo eventId, ' +
+          'retornando de forma paginada 10 resultado por vez ' +
+          'ou retornando apenas os que contém a string informada na busca',
+        tags: ['attendee'],
         params: z.object({
           eventId: z.string().uuid(),
         }),

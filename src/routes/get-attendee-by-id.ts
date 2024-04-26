@@ -8,6 +8,9 @@ const getAttendeeById = async (app: FastifyInstance) => {
     '/attendee/:attendeeId',
     {
       schema: {
+        description: 'Busca um participante',
+        summary: 'Busca um participante pelo seu id',
+        tags: ['attendee'],
         params: z.object({
           attendeeId: z.string().transform((id) => Number(id)),
         }),

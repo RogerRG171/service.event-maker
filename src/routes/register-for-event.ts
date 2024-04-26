@@ -8,6 +8,9 @@ const registerForEvent = async (app: FastifyInstance) => {
     '/event/:eventId/attendee',
     {
       schema: {
+        description: 'Cria um participante',
+        summary: 'Cria um participante em um evento',
+        tags: ['attendee'],
         params: z.object({
           eventId: z.string().uuid(),
         }),

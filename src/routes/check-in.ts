@@ -8,8 +8,11 @@ const checkIn = async (app: FastifyInstance) => {
     '/attendee/:attendeeId/check-in',
     {
       schema: {
+        summary: 'Realiza o check-in',
+        description: 'Realiza o check-in de um participante em um evento.',
+        tags: ['check-in'],
         params: z.object({
-          attendeeId: z.string().transform((id) => Number(id)),
+          attendeeId: z.coerce.number().int().positive(),
         }),
         response: {},
       },
