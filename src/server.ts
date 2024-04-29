@@ -1,5 +1,5 @@
 import fastify from 'fastify'
-
+import fastifyCors from '@fastify/cors'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUI from '@fastify/swagger-ui'
 
@@ -18,6 +18,10 @@ import { checkIn } from './routes/check-in'
 import { errorHandler } from './utils/error-handler'
 
 const app = fastify()
+
+app.register(fastifyCors, {
+  origin: '*',
+})
 
 app.register(fastifySwagger, {
   swagger: {
