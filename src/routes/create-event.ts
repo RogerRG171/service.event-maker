@@ -22,7 +22,7 @@ const createEvent = async (app: FastifyInstance) => {
             eventId: z.string().uuid(),
           }),
           400: z.object({
-            error: z.string(),
+            error: z.string().describe('Mensagens de erro'),
           }),
         },
       },
