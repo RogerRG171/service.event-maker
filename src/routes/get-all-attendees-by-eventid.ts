@@ -32,6 +32,7 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
                 checkInAt: z.date().nullable(),
               }),
             ),
+            total: z.number().int().positive(),
           }),
           404: z.object({
             error: z.string(),
@@ -76,6 +77,19 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
           },
         })
 
+        const count = await prisma.attendee.count({
+          where: query
+            ? {
+                eventId,
+                name: {
+                  contains: query,
+                },
+              }
+            : {
+                eventId,
+              },
+        })
+
         if (!attendees) {
           return reply.status(404).send({
             error: 'O evento não foi encontrado',
@@ -90,6 +104,7 @@ const getAllAttendeesByEventId = async (app: FastifyInstance) => {
             createdAt: attendee.createdAt,
             checkInAt: attendee.checkIn?.createdAt || null,
           })),
+          total: count,
         })
       } catch (error) {
         return reply.status(400).send({
