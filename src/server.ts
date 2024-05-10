@@ -53,7 +53,10 @@ app.register(checkIn)
 
 app.setErrorHandler(errorHandler)
 
-app.listen({ port: 3333, host: '0.0.0.0' }, (err, address) => {
+const PORT = Number(process.env.PORT)
+const HOST = process.env.API_BASE_URL
+
+app.listen({ port: PORT, host: HOST }, (err, address) => {
   if (err) {
     console.log(err)
     process.exit(1)
