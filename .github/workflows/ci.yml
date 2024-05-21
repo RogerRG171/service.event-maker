@@ -18,7 +18,7 @@ jobs:
               id: generate_sha
               run: |
                 SHA=$(echo $GITHUB_SHA | head -c7)
-                echo "sha=$SHA" >> $GITHUB_OUTPUT
+                echo "sha=${SHA}" >> $GITHUB_OUTPUT
 
             - name: Build docker image
               run: |
@@ -33,3 +33,5 @@ jobs:
             - name: Push image
               run: |
                 docker push roger171/service.event-maker:${{ steps.generate_sha.outputs.sha }}
+                docker tag roger171/service.event-maker:${{ steps.generate_sha.outputs.sha }} roger171/service.event-maker:latest
+                docker push roger171/service.event-maker:latest
