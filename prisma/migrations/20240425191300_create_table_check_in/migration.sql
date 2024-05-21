@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "check_in" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "id" serial NOT NULL PRIMARY KEY,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "attendee_id" INTEGER NOT NULL,
     CONSTRAINT "check_in_attendee_id_fkey" FOREIGN KEY ("attendee_id") REFERENCES "Attendee" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

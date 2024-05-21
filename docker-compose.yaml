@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:16.3-alpine3.18
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=event-maker
+    volumes:
+      - 'db:/var/lib/postgresql/data'
+    networks:
+      - event-maker
+
+  api-event-maker:
+    build:
+      context: .
+    container_name: api-event-maker
+    ports:
+      - 3001:3333
+    environment:
+      - DATABASE_URL=postgresql://admin:root@postgres:5432/event-maker
+      - API_BASE_URL=0.0.0.0
+      - PORT=3333
+    depends_on:
+      - postgres
+    networks:
+      - event-maker
+
+networks:
+  event-maker:
+    driver: bridge
+
+volumes:
+  db:
